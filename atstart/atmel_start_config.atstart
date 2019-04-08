@@ -29,6 +29,14 @@ middlewares:
     api: USB:Protocol:CDC
     dependencies:
       USB Chapter 9: USB_CHAPTER_9
+  USB_CLASS_MSC:
+    user_label: USB_CLASS_MSC
+    configuration: {}
+    definition: Atmel:USB:0.0.1::USB_Class_MSC
+    functionality: USB_Class_Mass_Storage_(MSC)
+    api: USB:Protocol:MSC
+    dependencies:
+      USB Chapter 9: USB_CHAPTER_9
   USB_DEVICE_STACK_CORE_INSTANCE:
     user_label: USB_DEVICE_STACK_CORE_INSTANCE
     configuration:
@@ -82,6 +90,63 @@ middlewares:
     dependencies:
       USB Device Stack Core Instance: USB_DEVICE_STACK_CORE_INSTANCE
       USB Class CDC: USB_CLASS_CDC
+  USB_DEVICE_MSC_0:
+    user_label: USB_DEVICE_MSC_0
+    configuration:
+      conf_usb_msc_demo_en: true
+      conf_usb_msc_lun0_capacity: 22
+      conf_usb_msc_lun0_enable: true
+      conf_usb_msc_lun0_rmb: true
+      conf_usb_msc_lun1_enable: false
+      conf_usb_msc_lun1_rmb: true
+      conf_usb_msc_lun2_capacity: 22
+      conf_usb_msc_lun2_enable: false
+      conf_usb_msc_lun2_rmb: true
+      conf_usb_msc_lun3_capacity: 22
+      conf_usb_msc_lun3_enable: false
+      conf_usb_msc_lun3_rmb: true
+      conf_usb_msc_lun4_capacity: 22
+      conf_usb_msc_lun4_enable: false
+      conf_usb_msc_lun4_rmb: true
+      conf_usb_msc_lun5_capacity: 22
+      conf_usb_msc_lun5_enable: false
+      conf_usb_msc_lun5_rmb: true
+      conf_usb_msc_lun6_capacity: 22
+      conf_usb_msc_lun6_enable: false
+      conf_usb_msc_lun6_rmb: true
+      conf_usb_msc_lun7_capacity: 22
+      conf_usb_msc_lun7_enable: false
+      conf_usb_msc_lun7_rmb: true
+      conf_usb_msc_lun_buf_sectors: 4
+      usb_msc_bcddevice: 256
+      usb_msc_bcdusb: USB 2.0 version
+      usb_msc_bmattri: Bus power supply, not support for remote wakeup
+      usb_msc_bmaxpksz0: 64 bytes
+      usb_msc_bmaxpower: 50
+      usb_msc_bulkin_epaddr: EndpointAddress = 0x85
+      usb_msc_bulkin_maxpksz: 64 bytes
+      usb_msc_bulkin_maxpksz_hs: 512 bytes
+      usb_msc_bulkout_epaddr: EndpointAddress = 0x04
+      usb_msc_bulkout_maxpksz: 64 bytes
+      usb_msc_bulkout_maxpksz_hs: 512 bytes
+      usb_msc_iconfig_en: false
+      usb_msc_iconfig_str: ''
+      usb_msc_idproduct: 9219
+      usb_msc_idvender: 1003
+      usb_msc_imanufact_en: false
+      usb_msc_imanufact_str: Atmel
+      usb_msc_iproduct_en: false
+      usb_msc_iproduct_str: Mass Storage Class (MSC) Demo
+      usb_msc_iserialnum_en: false
+      usb_msc_iserialnum_str: 123456789ABCDEF
+      usb_msc_langid: '0x0409'
+      usb_msc_str_en: false
+    definition: Atmel:USB:0.0.1::USB_Device_MSC
+    functionality: USB_Device_MSC
+    api: USB:Device:MSC
+    dependencies:
+      USB Device Stack Core Instance: USB_DEVICE_STACK_CORE_INSTANCE
+      USB Class MSC: USB_CLASS_MSC
 drivers:
   PMC:
     user_label: PMC
@@ -206,10 +271,10 @@ drivers:
     functionality: USB
     api: HAL:Driver:USB_Device
     configuration:
-      usbd_arch_max_ep_n: 3 (EP03/EP83)
+      usbd_arch_max_ep_n: 5 (EP05/EP85)
       usbd_arch_speed: Full speed
-      usbd_dma_enable: false
-      usbd_num_ep_sp: 4 (EP0 + 3 endpoints)
+      usbd_dma_enable: true
+      usbd_num_ep_sp: 6 (EP0 + 5 endpoints)
     optional_signals: []
     variant: null
     clocks:
