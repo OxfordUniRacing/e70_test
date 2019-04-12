@@ -3,7 +3,7 @@ OUTPUT_FILE_NAME = usb_test
 
 # Flags for debug and release builds
 ifndef RELEASE
-	CFLAGS += -ggdb3 -O0
+	CFLAGS += -ggdb3 -Og
 	DEFS += -DDEBUG
 	BUILD_DIR ?= Debug
 else
@@ -14,7 +14,7 @@ endif
 
 # Compile flags
 DEFS += -DUSE_SIMPLE_ASSERT=1
-CPPFLAGS += -MD -MP -include memcpy_override.h
+CPPFLAGS += -MD -MP
 CFLAGS += -Wall -Wextra -Wmissing-prototypes -Wstrict-prototypes
 CFLAGS += -fno-common -ffunction-sections -fdata-sections -std=gnu99
 LDFLAGS += --static -Wl,--gc-sections --specs=nosys.specs
@@ -69,6 +69,8 @@ fatfs \
 
 # Sources files excluded from compiling
 SRC_EXCLUDES := \
+atstart/rtos_start.c \
+atstart/usb_start.c \
 atstart/main.c
 
 INCS := $(INC_DIRS:%=-I%)
@@ -98,6 +100,10 @@ $(OUT_DIRS):
 $(BUILD_DIR)/%.o: %.c
 	@printf "  CC      $(<)\n"
 	$(Q)$(CC) $(CPPFLAGS) $(DEFS) $(INCS) $(CFLAGS) $(ARCH_FLAGS) -o $(@) -c $(<)
+
+$(BUILD_DIR)/atstart/hpl/usbhs/hpl_usbhs.o: atstart/hpl/usbhs/hpl_usbhs.c
+	@printf "  CC      $(<)\n"
+	$(Q)$(CC) -include memcpy_usb.h $(CPPFLAGS) $(DEFS) $(INCS) $(CFLAGS) $(ARCH_FLAGS) -o $(@) -c $(<)
 
 $(BUILD_DIR)/%.elf: $(OBJS)
 	@printf "  LD      $(@)\n"

@@ -2,11 +2,9 @@
 
 void vApplicationStackOverflowHook( TaskHandle_t xTask,
                                     signed char *pcTaskName ) {
-    __BKPT(0);
-    while (1);
+	while (1) __BKPT(0);
 }
 
 void vApplicationMallocFailedHook( void ) {
-	__BKPT(0);
-    while (1);
+	while (1) __BKPT(0);
 }
