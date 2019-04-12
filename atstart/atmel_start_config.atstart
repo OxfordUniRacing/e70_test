@@ -63,7 +63,7 @@ middlewares:
     user_label: SDMMC_ACCESS_0
     configuration:
       conf_mmc_support: false
-      conf_sd_mmc_0_cd_detect_en: false
+      conf_sd_mmc_0_cd_detect_en: true
       conf_sd_mmc_0_cd_detect_value: Low
       conf_sd_mmc_0_enable: true
       conf_sd_mmc_0_wp_detect_en: false
@@ -103,7 +103,7 @@ middlewares:
   USB_DEVICE_STACK_CORE_INSTANCE:
     user_label: USB_DEVICE_STACK_CORE_INSTANCE
     configuration:
-      usbd_hs_sp: false
+      usbd_hs_sp: true
     definition: Atmel:USB:0.0.1::USB_Device_Core
     functionality: USB_Device_Core
     api: USB:Device:Core
@@ -329,7 +329,7 @@ drivers:
     api: HAL:Driver:USB_Device
     configuration:
       usbd_arch_max_ep_n: 3 (EP03/EP83)
-      usbd_arch_speed: Full speed
+      usbd_arch_speed: High speed
       usbd_dma_enable: true
       usbd_num_ep_sp: 4 (EP0 + 3 endpoints)
     optional_signals: []

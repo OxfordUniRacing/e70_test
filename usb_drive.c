@@ -24,7 +24,7 @@ static struct sbc_read_capacity10_data capacity_info = {
 	0x00020000, /* 512 byte block size */
 };
 
-#define BUFFER_SIZE 16
+#define BUFFER_SIZE 64
 #define BLOCK_SIZE 512
 static uint8_t block_buf[BUFFER_SIZE * BLOCK_SIZE] __attribute__ ((aligned (4)));
 
@@ -37,7 +37,7 @@ static uint32_t trans_nblocks;
 static SemaphoreHandle_t buf_free_sem;
 static SemaphoreHandle_t buf_filled_sem;
 static SemaphoreHandle_t msc_cmd_sem;
-static SemaphoreHandle_t msc_busy_sem;
+//static SemaphoreHandle_t msc_busy_sem;
 static SemaphoreHandle_t sdmmc_done_sem;
 
 TaskHandle_t usb_drive_msc_task_h;
@@ -161,8 +161,8 @@ static int32_t msc_xfer_done(uint8_t lun) {
 	}
 
 	BaseType_t woken;
-	//vTaskNotifyGiveFromISR(usb_drive_msc_task_h, &woken);
-	xSemaphoreGiveFromISR(msc_busy_sem, &woken);
+	vTaskNotifyGiveFromISR(usb_drive_msc_task_h, &woken);
+	//xSemaphoreGiveFromISR(msc_busy_sem, &woken);
 
 	portYIELD_FROM_ISR(woken);
 	return ERR_NONE;
@@ -172,7 +172,7 @@ void usb_drive_init(void) {
 	buf_free_sem = xSemaphoreCreateCounting(BUFFER_SIZE, BUFFER_SIZE);
 	buf_filled_sem = xSemaphoreCreateCounting(BUFFER_SIZE, 0);
 	msc_cmd_sem = xSemaphoreCreateBinary();
-	msc_busy_sem = xSemaphoreCreateBinary();
+	//msc_busy_sem = xSemaphoreCreateBinary();
 	sdmmc_done_sem = xSemaphoreCreateBinary();
 
 	xTaskCreate(usb_drive_msc_task, "", 1024, NULL, 1, &usb_drive_msc_task_h);
@@ -215,8 +215,8 @@ void usb_drive_msc_task(void *p) {
 
 				rc = mscdf_xfer_blocks(false, block_buf + buf_ind * BLOCK_SIZE, 1);
 				ASSERT(rc == ERR_NONE);
-				//ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
-				xSemaphoreTake(msc_busy_sem, portMAX_DELAY);
+				ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
+				//xSemaphoreTake(msc_busy_sem, portMAX_DELAY);
 
 				buf_ind = (buf_ind + 1) % BUFFER_SIZE;
 
@@ -235,8 +235,8 @@ void usb_drive_msc_task(void *p) {
 
 				rc = mscdf_xfer_blocks(true, block_buf + buf_ind * BLOCK_SIZE, 1);
 				ASSERT(rc == ERR_NONE);
-				//ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
-				xSemaphoreTake(msc_busy_sem, portMAX_DELAY);
+				ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
+				//xSemaphoreTake(msc_busy_sem, portMAX_DELAY);
 
 				buf_ind = (buf_ind + 1) % BUFFER_SIZE;
 

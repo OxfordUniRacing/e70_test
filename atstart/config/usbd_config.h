@@ -11,7 +11,7 @@
 // <i> High speed support require descriptors description array on start, for LS/FS and HS support in first and second place.
 // <id> usbd_hs_sp
 #ifndef CONF_USBD_HS_SP
-#define CONF_USBD_HS_SP 0
+#define CONF_USBD_HS_SP 1
 #endif
 
 // ---- USB Device Stack Mass Storage Options ----
