@@ -1,14 +1,10 @@
+/*
+ * Expose SD card as a USB mass storage device
+ */
+
 #include "atmel_start.h"
 #include "sd_mmc.h"
 #include "usb_drive.h"
-
-enum { DIR_WRITE, DIR_READ };
-
-typedef struct {
-	uint8_t dir; // direction of transfer
-	uint16_t nblocks; // number of blocks
-	uint32_t addr; // lba of first block
-} cmd_queue_msg_t;
 
 static struct scsi_inquiry_data inquiry_info = {
 	SCSI_INQ_DT_DIR_ACCESS,
@@ -23,24 +19,26 @@ static struct scsi_inquiry_data inquiry_info = {
 	"SAM E70 SD CARD",
 	"0.1",
 };
-static struct sbc_read_capacity10_data format_capa = {
+static struct sbc_read_capacity10_data capacity_info = {
 	0x00000000, /* length to be filled */
 	0x00020000, /* 512 byte block size */
 };
 
 #define BUFFER_SIZE 16
 #define BLOCK_SIZE 512
-static uint8_t block_buf[BUFFER_SIZE * BLOCK_SIZE];
+static uint8_t block_buf[BUFFER_SIZE * BLOCK_SIZE] __attribute__ ((aligned (4)));
 
 static uint32_t max_lba; // sd card max lba
 
-static QueueHandle_t msc_cmd_queue;   // item type cmd_queue_msg_t
-static QueueHandle_t sdmmc_cmd_queue; // item type cmd_queue_msg_t
+static enum { DIR_WRITE, DIR_READ } trans_dir;
+static uint32_t trans_addr;
+static uint32_t trans_nblocks;
 
-static SemaphoreHandle_t buf_sem;
-static SemaphoreHandle_t read_sem;
-static SemaphoreHandle_t write_sem;
+static SemaphoreHandle_t buf_free_sem;
+static SemaphoreHandle_t buf_filled_sem;
+static SemaphoreHandle_t msc_cmd_sem;
 static SemaphoreHandle_t msc_busy_sem;
+static SemaphoreHandle_t sdmmc_done_sem;
 
 TaskHandle_t usb_drive_msc_task_h;
 TaskHandle_t usb_drive_sdmmc_task_h;
@@ -93,7 +91,7 @@ static uint8_t *msc_get_capacity(uint8_t lun) {
 	if (lun > 0) {
 		return NULL;
 	} else {
-		return (uint8_t *)&format_capa;
+		return (uint8_t *)&capacity_info;
 	}
 }
 
@@ -105,6 +103,7 @@ static uint8_t *msc_get_capacity(uint8_t lun) {
  * \return Operation status.
  */
 static int32_t msc_new_read(uint8_t lun, uint32_t addr, uint32_t nblocks) {
+
 	uint32_t rc = msc_disk_is_ready(lun);
 	if (rc != ERR_NONE) {
 		return rc;
@@ -113,17 +112,12 @@ static int32_t msc_new_read(uint8_t lun, uint32_t addr, uint32_t nblocks) {
 		return ERR_BAD_ADDRESS;
 	}
 
-	cmd_queue_msg_t msg;
-
-	msg.dir = DIR_READ;
-	msg.addr = addr;
-	msg.nblocks = nblocks;
+	trans_dir = DIR_READ;
+	trans_addr = addr;
+	trans_nblocks = nblocks;
 
 	BaseType_t woken;
-	rc = xQueueSendToBackFromISR(msc_cmd_queue, &msg, &woken);
-	ASSERT(rc == pdPASS);
-	rc = xQueueSendToBackFromISR(sdmmc_cmd_queue, &msg, &woken);
-	ASSERT(rc == pdPASS);
+	rc = xSemaphoreGiveFromISR(msc_cmd_sem, &woken);
 
 	portYIELD_FROM_ISR(woken);
 	return ERR_NONE;
@@ -145,17 +139,12 @@ static int32_t msc_new_write(uint8_t lun, uint32_t addr, uint32_t nblocks) {
 		return ERR_BAD_ADDRESS;
 	}
 
-	cmd_queue_msg_t msg;
-
-	msg.dir = DIR_WRITE;
-	msg.addr = addr;
-	msg.nblocks = nblocks;
+	trans_dir = DIR_WRITE;
+	trans_addr = addr;
+	trans_nblocks = nblocks;
 
 	BaseType_t woken;
-	rc = xQueueSendToBackFromISR(msc_cmd_queue, &msg, &woken);
-	ASSERT(rc == pdPASS);
-	rc = xQueueSendToBackFromISR(sdmmc_cmd_queue, &msg, &woken);
-	ASSERT(rc == pdPASS);
+	rc = xSemaphoreGiveFromISR(msc_cmd_sem, &woken);
 
 	portYIELD_FROM_ISR(woken);
 	return ERR_NONE;
@@ -179,16 +168,12 @@ static int32_t msc_xfer_done(uint8_t lun) {
 	return ERR_NONE;
 }
 
-// Expose sd card as a usb mass storage device
-
 void usb_drive_init(void) {
-	buf_sem = xSemaphoreCreateCounting(BUFFER_SIZE, BUFFER_SIZE);
-	read_sem = xSemaphoreCreateCounting(BUFFER_SIZE, 0);
-	write_sem = xSemaphoreCreateCounting(BUFFER_SIZE, 0);
+	buf_free_sem = xSemaphoreCreateCounting(BUFFER_SIZE, BUFFER_SIZE);
+	buf_filled_sem = xSemaphoreCreateCounting(BUFFER_SIZE, 0);
+	msc_cmd_sem = xSemaphoreCreateBinary();
 	msc_busy_sem = xSemaphoreCreateBinary();
-
-	msc_cmd_queue = xQueueCreate(1, sizeof(cmd_queue_msg_t));
-	sdmmc_cmd_queue = xQueueCreate(BUFFER_SIZE, sizeof(cmd_queue_msg_t));
+	sdmmc_done_sem = xSemaphoreCreateBinary();
 
 	xTaskCreate(usb_drive_msc_task, "", 1024, NULL, 1, &usb_drive_msc_task_h);
 	xTaskCreate(usb_drive_sdmmc_task, "", 1024, NULL, 1, &usb_drive_sdmmc_task_h);
@@ -197,6 +182,7 @@ void usb_drive_init(void) {
 void usb_drive_msc_task(void *p) {
 	(void)p;
 	uint32_t rc;
+	uint32_t buf_ind;
 
 	// wait until sd card is ready
 	ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
@@ -214,47 +200,47 @@ void usb_drive_msc_task(void *p) {
 		vTaskDelay(1);
 	}
 
-	uint32_t buf_ind = 0;
+	buf_ind = 0;
 
 	while (1) {
-		cmd_queue_msg_t msg;
-		rc = xQueueReceive(msc_cmd_queue, &msg, portMAX_DELAY);
-		ASSERT(rc == pdTRUE);
+		xSemaphoreTake(msc_cmd_sem, portMAX_DELAY);
 
-		if (msg.dir == DIR_WRITE) {
+		// notify that a command is received
+		xTaskNotifyGive(usb_drive_sdmmc_task_h);
+
+		if (trans_dir == DIR_WRITE) {
 			/* Write Request */
-			for (uint32_t i = 0; i < msg.nblocks; i++) {
-				rc = xSemaphoreTake(buf_sem, portMAX_DELAY);
-				ASSERT(rc == pdTRUE);
+			for (uint32_t i = 0; i < trans_nblocks; i++) {
+				xSemaphoreTake(buf_free_sem, portMAX_DELAY);
 
 				rc = mscdf_xfer_blocks(false, block_buf + buf_ind * BLOCK_SIZE, 1);
 				ASSERT(rc == ERR_NONE);
 				//ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
-				rc = xSemaphoreTake(msc_busy_sem, portMAX_DELAY);
-				ASSERT(rc == pdTRUE);
+				xSemaphoreTake(msc_busy_sem, portMAX_DELAY);
 
 				buf_ind = (buf_ind + 1) % BUFFER_SIZE;
 
-				rc = xSemaphoreGive(write_sem);
+				rc = xSemaphoreGive(buf_filled_sem);
 				ASSERT(rc == pdTRUE);
 			}
-			// Terminate write
+
+			xSemaphoreTake(sdmmc_done_sem, portMAX_DELAY);
+
+			// terminate write and send csw
 			mscdf_xfer_blocks(false, NULL, 0);
 		} else {
 			/* Read Request */
-			for (uint32_t i = 0; i < msg.nblocks; i++) {
-				rc = xSemaphoreTake(read_sem, portMAX_DELAY);
-				ASSERT(rc == pdTRUE);
+			for (uint32_t i = 0; i < trans_nblocks; i++) {
+				xSemaphoreTake(buf_filled_sem, portMAX_DELAY);
 
 				rc = mscdf_xfer_blocks(true, block_buf + buf_ind * BLOCK_SIZE, 1);
 				ASSERT(rc == ERR_NONE);
 				//ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
-				rc = xSemaphoreTake(msc_busy_sem, portMAX_DELAY);
-				ASSERT(rc == pdTRUE);
+				xSemaphoreTake(msc_busy_sem, portMAX_DELAY);
 
 				buf_ind = (buf_ind + 1) % BUFFER_SIZE;
 
-				rc = xSemaphoreGive(buf_sem);
+				rc = xSemaphoreGive(buf_free_sem);
 				ASSERT(rc == pdTRUE);
 			}
 		}
@@ -264,6 +250,7 @@ void usb_drive_msc_task(void *p) {
 void usb_drive_sdmmc_task(void *p) {
 	(void)p;
 	uint32_t rc;
+	uint32_t buf_ind;
 
 	// wait until sd card is ready
 	while (sd_mmc_check(0) != SD_MMC_OK) {
@@ -271,26 +258,24 @@ void usb_drive_sdmmc_task(void *p) {
 	}
 
 	max_lba = sd_mmc_get_capacity(0) * 2 - 1;
-	format_capa.max_lba = __builtin_bswap32(max_lba);
+	capacity_info.max_lba = __builtin_bswap32(max_lba);
 
 	// notify that sd card is ready
 	xTaskNotifyGive(usb_drive_msc_task_h);
 
-	uint32_t buf_ind = 0;
+	buf_ind = 0;
 
 	while (1) {
-		cmd_queue_msg_t msg;
-		rc = xQueueReceive(sdmmc_cmd_queue, &msg, portMAX_DELAY);
-		ASSERT(rc == pdTRUE);
+		// wait until a msc command is issued
+		ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
 
-		if (msg.dir == DIR_WRITE) {
+		if (trans_dir == DIR_WRITE) {
 			/* Write Disk */
-			rc = sd_mmc_init_write_blocks(0, msg.addr, msg.nblocks);
+			rc = sd_mmc_init_write_blocks(0, trans_addr, trans_nblocks);
 			ASSERT(rc == SD_MMC_OK);
 
-			for (uint32_t i = 0; i < msg.nblocks; i++) {
-				rc = xSemaphoreTake(write_sem, portMAX_DELAY);
-				ASSERT(rc == pdTRUE);
+			for (uint32_t i = 0; i < trans_nblocks; i++) {
+				xSemaphoreTake(buf_filled_sem, portMAX_DELAY);
 
 				rc = sd_mmc_start_write_blocks(block_buf + buf_ind * BLOCK_SIZE, 1);
 				ASSERT(rc == SD_MMC_OK);
@@ -299,7 +284,7 @@ void usb_drive_sdmmc_task(void *p) {
 
 				buf_ind = (buf_ind + 1) % BUFFER_SIZE;
 
-				rc = xSemaphoreGive(buf_sem);
+				rc = xSemaphoreGive(buf_free_sem);
 				ASSERT(rc == pdTRUE);
 			}
 
@@ -308,14 +293,16 @@ void usb_drive_sdmmc_task(void *p) {
 			while (!(hri_hsmci_read_SR_reg(HSMCI) & HSMCI_SR_XFRDONE)) {
 				taskYIELD();
 			}
+
+			// notify that write completed
+			xSemaphoreGive(sdmmc_done_sem);
 		} else {
 			/* Read Disk */
-			rc = sd_mmc_init_read_blocks(0, msg.addr, msg.nblocks);
+			rc = sd_mmc_init_read_blocks(0, trans_addr, trans_nblocks);
 			ASSERT(rc == SD_MMC_OK);
 
-			for (uint32_t i = 0; i < msg.nblocks; i++) {
-				rc = xSemaphoreTake(buf_sem, portMAX_DELAY);
-				ASSERT(rc == pdTRUE);
+			for (uint32_t i = 0; i < trans_nblocks; i++) {
+				xSemaphoreTake(buf_free_sem, portMAX_DELAY);
 
 				rc = sd_mmc_start_read_blocks(block_buf + buf_ind * BLOCK_SIZE, 1);
 				ASSERT(rc == SD_MMC_OK);
@@ -324,7 +311,7 @@ void usb_drive_sdmmc_task(void *p) {
 
 				buf_ind = (buf_ind + 1) % BUFFER_SIZE;
 
-				rc = xSemaphoreGive(read_sem);
+				rc = xSemaphoreGive(buf_filled_sem);
 				ASSERT(rc == pdTRUE);
 			}
 		}
