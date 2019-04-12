@@ -1,11 +1,15 @@
-# same70 (vcu) usb test
+# SAME70 (VCU) usb/sd/other test
 
 Experiments to test out usb (and sd card) functionality of the same70,
 intended for use in the VCU
 
-## status
+## Status
 
-[x] usb works
-[x] sd card works
+[x] USB works  
+[x] SD card works
 
-maximum transfer speed achieved: 2.5MB/s
+Maximum transfer speed achieved: 2.5MB/s
+
+## Thanks atmel
+
+Driver bugs encountered: 2
