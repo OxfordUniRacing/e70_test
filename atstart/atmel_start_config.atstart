@@ -14,6 +14,77 @@ board:
 details: null
 application: null
 middlewares:
+  FREERTOS_V1000_0:
+    user_label: FREERTOS_V1000_0
+    configuration:
+      freertos_advanced: true
+      freertos_check_for_stack_overflow: true
+      freertos_etaskgetstate: false
+      freertos_generate_run_time_stats: false
+      freertos_max_co_routine_priorities: 2
+      freertos_max_priorities: 5
+      freertos_minimal_stack_size: 64
+      freertos_pctaskgettaskname: false
+      freertos_tick_rate_hz: 1000
+      freertos_timer_task_priority: 2
+      freertos_timer_task_stack_depth: 64
+      freertos_total_heap_size: 131072
+      freertos_use_16_bit_ticks: false
+      freertos_use_application_task_tag_functions: false
+      freertos_use_co_routines: false
+      freertos_use_counting_semaphores: true
+      freertos_use_idle_hook: false
+      freertos_use_malloc_failed_hook: true
+      freertos_use_mutexes: true
+      freertos_use_port_optimised_functions: false
+      freertos_use_preemption: true
+      freertos_use_recursive_mutexes: true
+      freertos_use_stats_formatting_functions: true
+      freertos_use_tick_hook: false
+      freertos_use_tickless_idle: false
+      freertos_use_timers: true
+      freertos_use_trace_facility: true
+      freertos_uxtaskpriorityget: false
+      freertos_vtaskcleanupresources: false
+      freertos_vtaskdelay: true
+      freertos_vtaskdelayuntil: false
+      freertos_vtaskdelete: true
+      freertos_vtaskpriorityset: false
+      freertos_vtasksuspend: true
+      freertos_xresumefromisr: false
+      freertos_xtaskgetcurrenttaskhandle: false
+      freertos_xtaskgetidletaskhandle: false
+      freertos_xtimerpendfunctioncall: false
+    definition: Atmel:RTOS1000:0.0.1::FreeRTOS_v1000_MemMang_1
+    functionality: FreeRTOS_v10.0.0
+    api: RTOS:FreeRTOSv1000:MemMang_1
+    dependencies: {}
+  SDMMC_ACCESS_0:
+    user_label: SDMMC_ACCESS_0
+    configuration:
+      conf_mmc_support: false
+      conf_sd_mmc_0_cd_detect_en: false
+      conf_sd_mmc_0_cd_detect_value: Low
+      conf_sd_mmc_0_enable: true
+      conf_sd_mmc_0_wp_detect_en: false
+      conf_sd_mmc_0_wp_detect_value: High
+      conf_sd_mmc_os_support: true
+      conf_sdio_support: true
+    definition: Atmel:SD_MMC:0.0.1::SD_MMC
+    functionality: SD/MMC_Access
+    api: SD-MMC:Lib:API
+    dependencies:
+      IO Bus: IO_BUS
+      Write Protect 0: null
+      Card Detect 0: CARD_DETECT_0
+  DISKIO_0:
+    user_label: DISKIO_0
+    configuration: {}
+    definition: Atmel:DiskIO:1.0.0::SD_MMC
+    functionality: DISKIO
+    api: DiskIO:Storage-Abstractions:API
+    dependencies:
+      SDMMC: SDMMC_ACCESS_0
   USB_CHAPTER_9:
     user_label: USB_CHAPTER_9
     configuration: {}
@@ -21,14 +92,6 @@ middlewares:
     functionality: USB_Chapter_9
     api: USB:Protocol:Core
     dependencies: {}
-  USB_CLASS_CDC:
-    user_label: USB_CLASS_CDC
-    configuration: {}
-    definition: Atmel:USB:0.0.1::USB_Class_CDC
-    functionality: USB_Class_CDC
-    api: USB:Protocol:CDC
-    dependencies:
-      USB Chapter 9: USB_CHAPTER_9
   USB_CLASS_MSC:
     user_label: USB_CLASS_MSC
     configuration: {}
@@ -47,55 +110,12 @@ middlewares:
     dependencies:
       USB Chapter 9: USB_CHAPTER_9
       USB Device instance: USB_DEVICE_INSTANCE
-  USB_DEVICE_CDC_ACM_0:
-    user_label: USB_DEVICE_CDC_ACM_0
-    configuration:
-      usb_cdcd_acm_bcddevice: 256
-      usb_cdcd_acm_bcdusb: USB 2.0 version
-      usb_cdcd_acm_bconfigval: 1
-      usb_cdcd_acm_bmattri: Bus power supply, not support for remote wakeup
-      usb_cdcd_acm_bmaxpksz0: 64 bytes
-      usb_cdcd_acm_bmaxpower: 50
-      usb_cdcd_acm_bnumconfig: 1
-      usb_cdcd_acm_comm_baltset: 0
-      usb_cdcd_acm_comm_bifcnum: 0
-      usb_cdcd_acm_comm_iifc: 0
-      usb_cdcd_acm_comm_int_interval: 10
-      usb_cdcd_acm_comm_int_maxpksz: 64 bytes
-      usb_cdcd_acm_data_baltset: 0
-      usb_cdcd_acm_data_bifcnum: 1
-      usb_cdcd_acm_data_buckout_maxpksz: 64 bytes
-      usb_cdcd_acm_data_buckout_maxpksz_hs: 512 bytes
-      usb_cdcd_acm_data_builin_maxpksz: 64 bytes
-      usb_cdcd_acm_data_builin_maxpksz_hs: 512 bytes
-      usb_cdcd_acm_data_bulkin_epaddr: EndpointAddress = 0x82
-      usb_cdcd_acm_data_bulkout_epaddr: EndpointAddress = 0x01
-      usb_cdcd_acm_data_iifc: 0
-      usb_cdcd_acm_epaddr: EndpointAddress = 0x83
-      usb_cdcd_acm_iconfig_en: false
-      usb_cdcd_acm_iconfig_str: ''
-      usb_cdcd_acm_idproduct: 9220
-      usb_cdcd_acm_idvender: 1003
-      usb_cdcd_acm_imanufact_en: false
-      usb_cdcd_acm_imanufact_str: Atmel
-      usb_cdcd_acm_iproduct_en: false
-      usb_cdcd_acm_iproduct_str: CDC ACM Serial Bridge Demo
-      usb_cdcd_acm_iserialnum_en: false
-      usb_cdcd_acm_iserialnum_str: 123456789ABCDEF
-      usb_cdcd_acm_langid: '0x0409'
-      usb_cdcd_acm_str_en: false
-    definition: Atmel:USB:0.0.1::USB_Device_CDC_ACM
-    functionality: USB_Device_CDC_ACM
-    api: USB:Device:CDC_ACM
-    dependencies:
-      USB Device Stack Core Instance: USB_DEVICE_STACK_CORE_INSTANCE
-      USB Class CDC: USB_CLASS_CDC
   USB_DEVICE_MSC_0:
     user_label: USB_DEVICE_MSC_0
     configuration:
-      conf_usb_msc_demo_en: true
+      conf_usb_msc_demo_en: false
       conf_usb_msc_lun0_capacity: 22
-      conf_usb_msc_lun0_enable: true
+      conf_usb_msc_lun0_enable: false
       conf_usb_msc_lun0_rmb: true
       conf_usb_msc_lun1_enable: false
       conf_usb_msc_lun1_rmb: true
@@ -123,10 +143,10 @@ middlewares:
       usb_msc_bmattri: Bus power supply, not support for remote wakeup
       usb_msc_bmaxpksz0: 64 bytes
       usb_msc_bmaxpower: 50
-      usb_msc_bulkin_epaddr: EndpointAddress = 0x85
+      usb_msc_bulkin_epaddr: EndpointAddress = 0x82
       usb_msc_bulkin_maxpksz: 64 bytes
       usb_msc_bulkin_maxpksz_hs: 512 bytes
-      usb_msc_bulkout_epaddr: EndpointAddress = 0x04
+      usb_msc_bulkout_epaddr: EndpointAddress = 0x01
       usb_msc_bulkout_maxpksz: 64 bytes
       usb_msc_bulkout_maxpksz_hs: 512 bytes
       usb_msc_iconfig_en: false
@@ -148,6 +168,43 @@ middlewares:
       USB Device Stack Core Instance: USB_DEVICE_STACK_CORE_INSTANCE
       USB Class MSC: USB_CLASS_MSC
 drivers:
+  IO_BUS:
+    user_label: IO_BUS
+    definition: Atmel:SAME70B_Drivers:0.0.1::ATSAME70Q21B-AN::HSMCI::driver_config_definition::MCI::HAL:Driver:MCI.RTOS.Beta
+    functionality: MCI
+    api: HAL:Driver:MCI_RTOS_Beta
+    configuration: {}
+    optional_signals: []
+    variant:
+      specification: default
+      required_signals:
+      - name: HSMCI/MCCDA
+        pad: PA28
+        label: MCCDA
+      - name: HSMCI/MCCK
+        pad: PA25
+        label: MCCK
+      - name: HSMCI/MCDA/0
+        pad: PA30
+        label: MCDA/0
+      - name: HSMCI/MCDA/1
+        pad: PA31
+        label: MCDA/1
+      - name: HSMCI/MCDA/2
+        pad: PA26
+        label: MCDA/2
+      - name: HSMCI/MCDA/3
+        pad: PA27
+        label: MCDA/3
+    clocks:
+      domain_group:
+        nodes:
+        - name: HSMCI
+          input: Master Clock (MCK)
+          external: false
+          external_frequency: 0
+        configuration:
+          hsmci_clock_source: Master Clock (MCK)
   PMC:
     user_label: PMC
     definition: Atmel:SAME70B_Drivers:0.0.1::ATSAME70Q21B-AN::PMC::driver_config_definition::PMC::HAL:HPL:PMC
@@ -271,10 +328,10 @@ drivers:
     functionality: USB
     api: HAL:Driver:USB_Device
     configuration:
-      usbd_arch_max_ep_n: 5 (EP05/EP85)
+      usbd_arch_max_ep_n: 3 (EP03/EP83)
       usbd_arch_speed: Full speed
       usbd_dma_enable: true
-      usbd_num_ep_sp: 6 (EP0 + 5 endpoints)
+      usbd_num_ep_sp: 4 (EP0 + 3 endpoints)
     optional_signals: []
     variant: null
     clocks:
@@ -542,5 +599,47 @@ drivers:
     variant: null
     clocks:
       domain_group: null
-pads: {}
+pads:
+  PA25:
+    name: PA25
+    definition: Atmel:SAME70B_Drivers:0.0.1::ATSAME70Q21B-AN::pad::PA25
+    mode: Advanced
+    user_label: PA25
+    configuration: null
+  PA26:
+    name: PA26
+    definition: Atmel:SAME70B_Drivers:0.0.1::ATSAME70Q21B-AN::pad::PA26
+    mode: Advanced
+    user_label: PA26
+    configuration: null
+  PA27:
+    name: PA27
+    definition: Atmel:SAME70B_Drivers:0.0.1::ATSAME70Q21B-AN::pad::PA27
+    mode: Advanced
+    user_label: PA27
+    configuration: null
+  CARD_DETECT_0:
+    name: PC16
+    definition: Atmel:SAME70B_Drivers:0.0.1::ATSAME70Q21B-AN::pad::PC16
+    mode: Digital input
+    user_label: CARD_DETECT_0
+    configuration: {}
+  PA28:
+    name: PA28
+    definition: Atmel:SAME70B_Drivers:0.0.1::ATSAME70Q21B-AN::pad::PA28
+    mode: Advanced
+    user_label: PA28
+    configuration: null
+  PA30:
+    name: PA30
+    definition: Atmel:SAME70B_Drivers:0.0.1::ATSAME70Q21B-AN::pad::PA30
+    mode: Advanced
+    user_label: PA30
+    configuration: null
+  PA31:
+    name: PA31
+    definition: Atmel:SAME70B_Drivers:0.0.1::ATSAME70Q21B-AN::pad::PA31
+    mode: Advanced
+    user_label: PA31
+    configuration: null
 toolchain_options: []

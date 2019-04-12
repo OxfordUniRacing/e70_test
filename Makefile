@@ -8,15 +8,16 @@ ifndef RELEASE
 	BUILD_DIR ?= Debug
 else
 	CFLAGS += -ggdb3 -O2
-	DEFS += -DRELEASE
+	DEFS += -DNDEBUG
 	BUILD_DIR ?= Release
 endif
 
 # Compile flags
+DEFS += -DUSE_SIMPLE_ASSERT=1
 CPPFLAGS += -MD -MP -include memcpy_override.h
 CFLAGS += -Wall -Wextra -Wmissing-prototypes -Wstrict-prototypes
 CFLAGS += -fno-common -ffunction-sections -fdata-sections -std=gnu99
-LDFLAGS += --static -Wl,--gc-sections
+LDFLAGS += --static -Wl,--gc-sections --specs=nosys.specs
 
 # Target specific flags
 DEFS += -D__SAME70Q21B__
@@ -27,6 +28,9 @@ subdirs = $(patsubst %/,%,$(filter %/,$(wildcard $(1)/*/)))
 
 # Include directories
 INC_DIRS := \
+freertos/include \
+atstart/thirdparty/RTOS \
+atstart/thirdparty/RTOS/freertos/FreeRTOSV10.0.0 \
 atstart/config \
 atstart/CMSIS/Core/Include \
 atstart/same70b/include \
@@ -40,12 +44,16 @@ atstart/usb/class/cdc/device \
 atstart/usb/class/cdc \
 atstart/usb/device \
 atstart/usb \
+atstart/sd_mmc \
 atstart \
+fatfs \
 .
 
 # Source directories
 SRC_DIRS := \
 startup \
+freertos \
+atstart/thirdparty/RTOS/freertos/FreeRTOSV10.0.0 \
 $(call subdirs,atstart/hpl) \
 atstart/hal/utils/src \
 atstart/hal/src \
@@ -53,7 +61,10 @@ atstart/usb/class/msc/device \
 atstart/usb/class/cdc/device \
 atstart/usb/device \
 atstart/usb \
+atstart/sd_mmc \
+atstart/diskio \
 atstart \
+fatfs \
 .
 
 # Sources files excluded from compiling

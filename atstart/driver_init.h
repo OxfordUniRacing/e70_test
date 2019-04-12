@@ -21,7 +21,15 @@ extern "C" {
 #include <hal_io.h>
 #include <hal_sleep.h>
 
+#include <hal_mci_os.h>
+
 #include "hal_usb_device.h"
+
+extern struct mci_os_desc IO_BUS;
+
+void IO_BUS_PORT_init(void);
+void IO_BUS_CLOCK_init(void);
+void IO_BUS_init(void);
 
 void USB_DEVICE_INSTANCE_CLOCK_init(void);
 void USB_DEVICE_INSTANCE_init(void);

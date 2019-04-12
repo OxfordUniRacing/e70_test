@@ -4,6 +4,24 @@
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
+// <h> HSMCI Clock Settings
+// <y> HSMCI Clock source
+// <CONF_SRC_MCK"> Master Clock (MCK)
+// <i> This defines the clock source for the HSMCI
+// <id> hsmci_clock_source
+#ifndef CONF_HSMCI_SRC
+#define CONF_HSMCI_SRC CONF_SRC_MCK
+#endif
+// </h>
+
+/**
+ * \def HSMCI FREQUENCY
+ * \brief HSMCI's Clock frequency
+ */
+#ifndef CONF_HSMCI_FREQUENCY
+#define CONF_HSMCI_FREQUENCY 150000000
+#endif
+
 /**
  * \def CONF_HCLK_FREQUENCY
  * \brief HCLK's Clock frequency

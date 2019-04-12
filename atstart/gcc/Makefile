@@ -26,112 +26,166 @@ endif
 # List the subdirectories for creating object files
 SUB_DIRS +=  \
  \
-usb/class/cdc/device \
+sd_mmc \
 usb/class/msc/device \
 hpl/pmc \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/portable/MemMang \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM7 \
 hal/src \
+hpl/hsmci \
 hpl/usbhs \
 hpl/xdmac \
 hal/utils/src \
 same70b/gcc/gcc \
 examples \
+usb/device \
 usb \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0 \
 same70b/gcc \
 hpl/core \
-usb/device
+diskio
 
 # List the object files
 OBJS +=  \
 hal/src/hal_io.o \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/list.o \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/portable/MemMang/heap_1.o \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/event_groups.o \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/croutine.o \
 hpl/xdmac/hpl_xdmac.o \
-usb/class/cdc/device/cdcdf_acm.o \
+sd_mmc_start.o \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/stream_buffer.o \
 hal/utils/src/utils_syscalls.o \
-usb/class/msc/device/mscdf.o \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/queue.o \
+same70b/gcc/gcc/startup_same70q21b.o \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM7/port.o \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/timers.o \
 hal/src/hal_delay.o \
 hpl/usbhs/hpl_usbhs.o \
 hpl/core/hpl_init.o \
 hal/utils/src/utils_list.o \
-same70b/gcc/gcc/startup_same70q21b.o \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/rtos_port.o \
 hal/utils/src/utils_assert.o \
 usb_start.o \
-hpl/pmc/hpl_sleep.o \
+atmel_start.o \
 hpl/pmc/hpl_pmc.o \
+same70b/gcc/system_same70q21b.o \
+hal/src/hal_mci_os.o \
 usb/usb_protocol.o \
 hal/src/hal_init.o \
+diskio_start.o \
 hal/src/hal_usb_device.o \
-main.o \
+rtos_start.o \
 usb/device/usbdc.o \
+sd_mmc/sd_mmc.o \
+diskio/sdmmc_diskio.o \
 examples/driver_examples.o \
 driver_init.o \
-same70b/gcc/system_same70q21b.o \
+usb/class/msc/device/mscdf.o \
+main.o \
 hal/src/hal_gpio.o \
+hpl/hsmci/hpl_hsmci.o \
 hal/utils/src/utils_event.o \
 hal/src/hal_sleep.o \
-atmel_start.o \
+hpl/pmc/hpl_sleep.o \
 hpl/core/hpl_core_m7_base.o \
-hal/src/hal_atomic.o
+hal/src/hal_atomic.o \
+thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/tasks.o
 
 OBJS_AS_ARGS +=  \
 "hal/src/hal_io.o" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/list.o" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/portable/MemMang/heap_1.o" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/event_groups.o" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/croutine.o" \
 "hpl/xdmac/hpl_xdmac.o" \
-"usb/class/cdc/device/cdcdf_acm.o" \
+"sd_mmc_start.o" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/stream_buffer.o" \
 "hal/utils/src/utils_syscalls.o" \
-"usb/class/msc/device/mscdf.o" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/queue.o" \
+"same70b/gcc/gcc/startup_same70q21b.o" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM7/port.o" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/timers.o" \
 "hal/src/hal_delay.o" \
 "hpl/usbhs/hpl_usbhs.o" \
 "hpl/core/hpl_init.o" \
 "hal/utils/src/utils_list.o" \
-"same70b/gcc/gcc/startup_same70q21b.o" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/rtos_port.o" \
 "hal/utils/src/utils_assert.o" \
 "usb_start.o" \
-"hpl/pmc/hpl_sleep.o" \
+"atmel_start.o" \
 "hpl/pmc/hpl_pmc.o" \
+"same70b/gcc/system_same70q21b.o" \
+"hal/src/hal_mci_os.o" \
 "usb/usb_protocol.o" \
 "hal/src/hal_init.o" \
+"diskio_start.o" \
 "hal/src/hal_usb_device.o" \
-"main.o" \
+"rtos_start.o" \
 "usb/device/usbdc.o" \
+"sd_mmc/sd_mmc.o" \
+"diskio/sdmmc_diskio.o" \
 "examples/driver_examples.o" \
 "driver_init.o" \
-"same70b/gcc/system_same70q21b.o" \
+"usb/class/msc/device/mscdf.o" \
+"main.o" \
 "hal/src/hal_gpio.o" \
+"hpl/hsmci/hpl_hsmci.o" \
 "hal/utils/src/utils_event.o" \
 "hal/src/hal_sleep.o" \
-"atmel_start.o" \
+"hpl/pmc/hpl_sleep.o" \
 "hpl/core/hpl_core_m7_base.o" \
-"hal/src/hal_atomic.o"
+"hal/src/hal_atomic.o" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/tasks.o"
 
 # List the dependency files
 DEPS := $(OBJS:%.o=%.d)
 
 DEPS_AS_ARGS +=  \
-"hal/src/hal_gpio.d" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/event_groups.d" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/croutine.d" \
+"hal/utils/src/utils_event.d" \
 "hal/src/hal_io.d" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/portable/MemMang/heap_1.d" \
 "hal/utils/src/utils_syscalls.d" \
-"usb/class/cdc/device/cdcdf_acm.d" \
+"sd_mmc_start.d" \
 "hpl/xdmac/hpl_xdmac.d" \
-"usb/class/msc/device/mscdf.d" \
+"main.d" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/timers.d" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/rtos_port.d" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM7/port.d" \
+"sd_mmc/sd_mmc.d" \
 "same70b/gcc/gcc/startup_same70q21b.d" \
 "hal/utils/src/utils_list.d" \
 "usb_start.d" \
 "hal/utils/src/utils_assert.d" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/stream_buffer.d" \
 "hpl/usbhs/hpl_usbhs.d" \
 "hal/src/hal_delay.d" \
 "hpl/core/hpl_init.d" \
 "usb/usb_protocol.d" \
+"hal/src/hal_mci_os.d" \
 "hal/src/hal_usb_device.d" \
+"diskio_start.d" \
 "hal/src/hal_init.d" \
 "hpl/pmc/hpl_pmc.d" \
 "driver_init.d" \
-"main.d" \
+"rtos_start.d" \
 "examples/driver_examples.d" \
+"diskio/sdmmc_diskio.d" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/list.d" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/queue.d" \
+"hpl/hsmci/hpl_hsmci.d" \
 "hal/src/hal_sleep.d" \
 "same70b/gcc/system_same70q21b.d" \
 "usb/device/usbdc.d" \
-"hal/utils/src/utils_event.d" \
+"hal/src/hal_gpio.d" \
 "hpl/pmc/hpl_sleep.d" \
 "hal/src/hal_atomic.d" \
+"usb/class/msc/device/mscdf.d" \
 "hpl/core/hpl_core_m7_base.d" \
+"thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/tasks.d" \
 "atmel_start.d"
 
 OUTPUT_FILE_NAME :=AtmelStart
@@ -179,7 +233,7 @@ $(OUTPUT_FILE_PATH): $(OBJS)
 	@echo ARM/GNU C Compiler
 	$(QUOTE)arm-none-eabi-gcc$(QUOTE) -x c -mthumb -DDEBUG -Os -ffunction-sections -mlong-calls -g3 -Wall -c -std=gnu99 \
 -D__SAME70Q21B__ -mcpu=cortex-m7 -mfloat-abi=softfp -mfpu=fpv4-sp-d16 \
--I"../" -I"../config" -I"../examples" -I"../hal/include" -I"../hal/utils/include" -I"../hpl/core" -I"../hpl/pio" -I"../hpl/pmc" -I"../hpl/usbhs" -I"../hpl/xdmac" -I"../hri" -I"../" -I"../config" -I"../usb" -I"../usb/class/cdc" -I"../usb/class/cdc/device" -I"../usb/class/msc" -I"../usb/class/msc/device" -I"../usb/device" -I"../" -I"../CMSIS/Core/Include" -I"../same70b/include"  \
+-I"../" -I"../config" -I"../examples" -I"../hal/include" -I"../hal/utils/include" -I"../hpl/core" -I"../hpl/hsmci" -I"../hpl/pio" -I"../hpl/pmc" -I"../hpl/usbhs" -I"../hpl/xdmac" -I"../hri" -I"../" -I"../config" -I"../thirdparty/RTOS" -I"../thirdparty/RTOS/freertos/FreeRTOSV10.0.0" -I"../thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/include" -I"../thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM7" -I"../thirdparty/RTOS/freertos/FreeRTOSV10.0.0/module_config" -I"../" -I"../config" -I"../sd_mmc" -I"../" -I"../diskio" -I"../" -I"../config" -I"../usb" -I"../usb/class/msc" -I"../usb/class/msc/device" -I"../usb/device" -I"../" -I"../CMSIS/Core/Include" -I"../same70b/include"  \
 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -o "$@" "$<"
 	@echo Finished building: $<
 
@@ -188,7 +242,7 @@ $(OUTPUT_FILE_PATH): $(OBJS)
 	@echo ARM/GNU Assembler
 	$(QUOTE)arm-none-eabi-as$(QUOTE) -x c -mthumb -DDEBUG -Os -ffunction-sections -mlong-calls -g3 -Wall -c -std=gnu99 \
 -D__SAME70Q21B__ -mcpu=cortex-m7 -mfloat-abi=softfp -mfpu=fpv4-sp-d16 \
--I"../" -I"../config" -I"../examples" -I"../hal/include" -I"../hal/utils/include" -I"../hpl/core" -I"../hpl/pio" -I"../hpl/pmc" -I"../hpl/usbhs" -I"../hpl/xdmac" -I"../hri" -I"../" -I"../config" -I"../usb" -I"../usb/class/cdc" -I"../usb/class/cdc/device" -I"../usb/class/msc" -I"../usb/class/msc/device" -I"../usb/device" -I"../" -I"../CMSIS/Core/Include" -I"../same70b/include"  \
+-I"../" -I"../config" -I"../examples" -I"../hal/include" -I"../hal/utils/include" -I"../hpl/core" -I"../hpl/hsmci" -I"../hpl/pio" -I"../hpl/pmc" -I"../hpl/usbhs" -I"../hpl/xdmac" -I"../hri" -I"../" -I"../config" -I"../thirdparty/RTOS" -I"../thirdparty/RTOS/freertos/FreeRTOSV10.0.0" -I"../thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/include" -I"../thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM7" -I"../thirdparty/RTOS/freertos/FreeRTOSV10.0.0/module_config" -I"../" -I"../config" -I"../sd_mmc" -I"../" -I"../diskio" -I"../" -I"../config" -I"../usb" -I"../usb/class/msc" -I"../usb/class/msc/device" -I"../usb/device" -I"../" -I"../CMSIS/Core/Include" -I"../same70b/include"  \
 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -o "$@" "$<"
 	@echo Finished building: $<
 
@@ -197,7 +251,7 @@ $(OUTPUT_FILE_PATH): $(OBJS)
 	@echo ARM/GNU Preprocessing Assembler
 	$(QUOTE)arm-none-eabi-gcc$(QUOTE) -x c -mthumb -DDEBUG -Os -ffunction-sections -mlong-calls -g3 -Wall -c -std=gnu99 \
 -D__SAME70Q21B__ -mcpu=cortex-m7 -mfloat-abi=softfp -mfpu=fpv4-sp-d16 \
--I"../" -I"../config" -I"../examples" -I"../hal/include" -I"../hal/utils/include" -I"../hpl/core" -I"../hpl/pio" -I"../hpl/pmc" -I"../hpl/usbhs" -I"../hpl/xdmac" -I"../hri" -I"../" -I"../config" -I"../usb" -I"../usb/class/cdc" -I"../usb/class/cdc/device" -I"../usb/class/msc" -I"../usb/class/msc/device" -I"../usb/device" -I"../" -I"../CMSIS/Core/Include" -I"../same70b/include"  \
+-I"../" -I"../config" -I"../examples" -I"../hal/include" -I"../hal/utils/include" -I"../hpl/core" -I"../hpl/hsmci" -I"../hpl/pio" -I"../hpl/pmc" -I"../hpl/usbhs" -I"../hpl/xdmac" -I"../hri" -I"../" -I"../config" -I"../thirdparty/RTOS" -I"../thirdparty/RTOS/freertos/FreeRTOSV10.0.0" -I"../thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/include" -I"../thirdparty/RTOS/freertos/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM7" -I"../thirdparty/RTOS/freertos/FreeRTOSV10.0.0/module_config" -I"../" -I"../config" -I"../sd_mmc" -I"../" -I"../diskio" -I"../" -I"../config" -I"../usb" -I"../usb/class/msc" -I"../usb/class/msc/device" -I"../usb/device" -I"../" -I"../CMSIS/Core/Include" -I"../same70b/include"  \
 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -o "$@" "$<"
 	@echo Finished building: $<
 
