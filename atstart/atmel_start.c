@@ -7,6 +7,5 @@ void atmel_start_init(void)
 {
 	system_init();
 	sd_mmc_stack_init();
-	diskio_init();
 	usb_init();
 }

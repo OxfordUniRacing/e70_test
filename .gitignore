@@ -1,6 +1,7 @@
 *.swp
-Debug/
-Release/
-openocd.cfg
 *.zip
 *.atzip
+/Debug/
+/Release/
+/openocd.cfg
+/atstart/examples/

@@ -29,6 +29,7 @@ subdirs = $(patsubst %/,%,$(filter %/,$(wildcard $(1)/*/)))
 # Include directories
 INC_DIRS := \
 freertos/include \
+hal_rtos \
 atstart/thirdparty/RTOS \
 atstart/thirdparty/RTOS/freertos/FreeRTOSV10.0.0 \
 atstart/config \
@@ -53,6 +54,7 @@ fatfs \
 SRC_DIRS := \
 startup \
 freertos \
+hal_rtos \
 atstart/thirdparty/RTOS/freertos/FreeRTOSV10.0.0 \
 $(call subdirs,atstart/hpl) \
 atstart/hal/utils/src \

@@ -20,6 +20,8 @@
  */
 #define PERIPHERAL_INTERRUPT_PRIORITY (configLIBRARY_LOWEST_INTERRUPT_PRIORITY - 1)
 
+struct can_async_descriptor CAN_0;
+
 struct mci_os_desc IO_BUS;
 
 void IO_BUS_PORT_init(void)
@@ -268,6 +270,40 @@ void USB_DEVICE_INSTANCE_init(void)
 	usb_d_init();
 }
 
+/**
+ * \brief MCAN Clock initialization function
+ *
+ * Enables register interface and peripheral clock
+ */
+void CAN_0_CLOCK_init()
+{
+	_pmc_enable_periph_clock(ID_MCAN0);
+}
+
+/**
+ * \brief MCAN pinmux initialization function
+ *
+ * Set each required pin to MCAN functionality
+ */
+void CAN_0_PORT_init(void)
+{
+
+	gpio_set_pin_function(PB3, MUX_PB3A_MCAN0_CANRX0);
+
+	gpio_set_pin_function(PB2, MUX_PB2A_MCAN0_CANTX0);
+}
+/**
+ * \brief CAN initialization function
+ *
+ * Enables CAN peripheral, clocks and initializes CAN driver
+ */
+void CAN_0_init(void)
+{
+	CAN_0_CLOCK_init();
+	CAN_0_PORT_init();
+	can_async_init(&CAN_0, MCAN0);
+}
+
 void system_init(void)
 {
 	init_mcu();
@@ -295,4 +331,6 @@ void system_init(void)
 	IO_BUS_init();
 
 	USB_DEVICE_INSTANCE_init();
+
+	CAN_0_init();
 }

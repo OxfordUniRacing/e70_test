@@ -25,7 +25,11 @@ extern "C" {
 
 #include "hal_usb_device.h"
 
+#include <hal_can_async.h>
+
 extern struct mci_os_desc IO_BUS;
+
+extern struct can_async_descriptor CAN_0;
 
 void IO_BUS_PORT_init(void);
 void IO_BUS_CLOCK_init(void);
@@ -33,6 +37,11 @@ void IO_BUS_init(void);
 
 void USB_DEVICE_INSTANCE_CLOCK_init(void);
 void USB_DEVICE_INSTANCE_init(void);
+
+void CAN_0_PORT_init(void);
+void CAN_0_CLOCK_init(void);
+void CAN_0_init(void);
+void CAN_0_example(void);
 
 /**
  * \brief Perform system initialization, initialize pins and clocks for
