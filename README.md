@@ -16,4 +16,8 @@ Maximum transfer speed achieved: 2.5MB/s
 
 ## Thanks atmel
 
-Driver bugs encountered: 2
+Driver bugs encountered: 3
+
+1. usb: Misuse of memcpy for sram that requires 4 byte alignment
+2. sdmmc: Not waiting for XFRDONE before sending another command
+3. can: Not setting CAN0DMABA to base address of can buffers
